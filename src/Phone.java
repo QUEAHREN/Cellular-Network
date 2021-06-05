@@ -1,4 +1,4 @@
-public class Phone {
+public class Phone implements RandomN{
 
     private int phoneID;
     private int cphoneID;
@@ -6,11 +6,22 @@ public class Phone {
     private int position_x;
     private int position_y;
     private int state;
+    private int width;
+    private int height;
+    private int in_stationID;
 
-    Phone(int phoneID, String number, int state){
+    Phone(int phoneID, int width, int height){
+
+        int num = randomNumber(100000000,999999999);
         this.phoneID = phoneID;
-        this.number = number;
-        this.state = state;
+        this.number = "18" + Integer.toString(num);
+        this.state = 0;
+        this.position_x = randomNumber(0, width);
+        this.position_y = randomNumber(0, height);
+        this.width = width;
+        this.height = height;
+        this.in_stationID = -1;
+
     }
 
     public void setPhoneID(int phoneID) {
@@ -43,22 +54,57 @@ public class Phone {
     public void setState(int state) {
         this.state = state;
     }
-
-    public String getState() {
+    public void setIn_stationID(int in_stationID) {
+        this.in_stationID = in_stationID;
+    }
+    public int getIn_stationID() {
+        return in_stationID;
+    }
+    public int getState() {
+        return state;
+    }
+    public String getsState() {
         String s_state = "";
         if (state == 1)     s_state = getNumber() + " " + "is busy";
         else                s_state = getNumber() + " " + "is free";
         return s_state;
     }
 
-    public int move_x(int x){
-        setPosition_x(getPosition_x() + x);
-        return  getPosition_x();
+    public void move_x(boolean mo) {
+        int newx;
+        if (mo) {
+            newx = getPosition_x() + 1;
+            if (newx < width)   setPosition_x(getPosition_x() + 1);
+            else                setPosition_x(getPosition_x() - 1);
+        } else {
+            newx = getPosition_x() - 1;
+            if (newx >= 0)      setPosition_x(getPosition_x() - 1);
+            else                setPosition_x(getPosition_x() + 1);
+        }
     }
-    public int move_y(int y){
-        setPosition_y(getPosition_y() + y);
-        return  getPosition_y();
+    public void move_y(boolean mo){
+        int newy;
+        if (mo) {
+            newy = getPosition_y() + 1;
+            if (newy < width)   setPosition_y(getPosition_y() + 1);
+            else                setPosition_y(getPosition_y() - 1);
+        } else {
+            newy = getPosition_y() - 1;
+            if (newy >= 0)      setPosition_y(getPosition_y() - 1);
+            else                setPosition_y(getPosition_y() + 1);
+        }
     }
 
+    @Override
+    public int randomNumber(int l, int r) {
+        return (int)(Math.random() * (r + 1 - l) + l);
+    }
+
+    @Override
+    public boolean randomChoice() {
+        double r = Math.random();
+        if (r < 0.5)    return false;
+        else            return false;
+    }
 
 }
