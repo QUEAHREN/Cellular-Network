@@ -1,20 +1,22 @@
+//手机类
+
 public class Phone implements RandomN{
 
-    private int phoneID;
+    private final int phoneID;
     private int cphoneID;
-    private String number;
+    private final String number;
     private int position_x;
     private int position_y;
     private int state;
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
     private int in_stationID;
 
     Phone(int phoneID, int width, int height){
 
         int num = randomNumber(100000000,999999999);
         this.phoneID = phoneID;
-        this.number = "18" + Integer.toString(num);
+        this.number = "18" + num;
         this.state = 0;
         this.position_x = randomNumber(0, width);
         this.position_y = randomNumber(0, height);
@@ -24,9 +26,6 @@ public class Phone implements RandomN{
 
     }
 
-    public void setPhoneID(int phoneID) {
-        this.phoneID = phoneID;
-    }
     public int getPhoneID() {
         return phoneID;
     }
@@ -63,12 +62,6 @@ public class Phone implements RandomN{
     public int getState() {
         return state;
     }
-    public String getsState() {
-        String s_state = "";
-        if (state == 1)     s_state = getNumber() + " " + "is busy";
-        else                s_state = getNumber() + " " + "is free";
-        return s_state;
-    }
 
     public void move_x(boolean mo) {
         int newx;
@@ -86,7 +79,7 @@ public class Phone implements RandomN{
         int newy;
         if (mo) {
             newy = getPosition_y() + 1;
-            if (newy < width)   setPosition_y(getPosition_y() + 1);
+            if (newy < height)   setPosition_y(getPosition_y() + 1);
             else                setPosition_y(getPosition_y() - 1);
         } else {
             newy = getPosition_y() - 1;
@@ -103,8 +96,7 @@ public class Phone implements RandomN{
     @Override
     public boolean randomChoice() {
         double r = Math.random();
-        if (r < 0.5)    return false;
-        else            return false;
+        return r < 0.5;
     }
 
 }

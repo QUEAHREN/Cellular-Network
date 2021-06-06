@@ -1,3 +1,5 @@
+//基站类
+
 public class BaseStation {
 
     private int stationID;

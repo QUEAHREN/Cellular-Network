@@ -1,18 +1,19 @@
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ComMap implements RandomN{
 
-    private int width;
-    private int height;
-    private int R;
-    private int num;
-    private int phonenum;
-    char map[][] = new char[10000][10000];
-    ArrayList<BaseStation> baseStations = new ArrayList<>();
-    ArrayList<Phone> phones = new ArrayList<>();
+    //地图的基本参数
+    final private int width;
+    final private int height;
+    final private int R;
+    final private int phonenum;
+    final char[][] map = new char[10000][10000];
+    ArrayList<BaseStation> baseStations;
+    ArrayList<Phone> phones;
 
+    //初始化
     ComMap(int width, int height, int R, int num, int phonenum, ArrayList<Phone> phones){
+
         this.width = width;
         this.height = height;
         this.R = R;
@@ -32,17 +33,17 @@ public class ComMap implements RandomN{
             baseStations.add(baseStation);
         }
 
-        for (Iterator<Phone> it= phones.iterator(); it.hasNext(); ) {
-            Phone phone = it.next();
-            map[phone.getPosition_x()][phone.getPosition_y()] = (char)(phone.getPhoneID() + '0');
+        for (Phone phone : phones) {
+            map[phone.getPosition_x()][phone.getPosition_y()] = (char) (phone.getPhoneID() + '0');
             int id = checkStation(phone);
-            if (id >= 0) System.out.println("phone: " + phone.getPhoneID() + " " +  phone.getNumber() +
-                    " has entered the " + id +  " base station." + " sysmbol: " +(char)(id + 'a'));
-            else         System.out.println("phone: " + phone.getPhoneID() + " " + phone.getNumber() + " is out of service.");
+            if (id >= 0) System.out.println("phone_" + phone.getPhoneID() + " " + phone.getNumber() +
+                    " has entered the " + id + " base station." + " Station Sysmbol in map: " + (char) (id + 'a'));
+            else System.out.println("phone_" + phone.getPhoneID() + " " + phone.getNumber() + " is out of service.");
         }
         System.out.println();
         printMap();
         System.out.println();
+
     }
 
     public int getR() {
@@ -61,29 +62,30 @@ public class ComMap implements RandomN{
         return phonenum;
     }
 
+    //刷新地图(随机移动，并让手机进行随机动作)
     public void refreshMap() {
+        //重载地图，并让手机随机移动
         int i, j;
         for (i = 0; i < width; i ++) for (j = 0; j < height; j ++)
             map[i][j] = '-';
-        for (Iterator<BaseStation> it= baseStations.iterator(); it.hasNext(); ) {
-            BaseStation baseStation = it.next();
-            map[baseStation.getPosition_x()][baseStation.getPosition_y()] = (char)(baseStation.getStationID() + 'a');
+        for (BaseStation baseStation : baseStations) {
+            map[baseStation.getPosition_x()][baseStation.getPosition_y()] = (char) (baseStation.getStationID() + 'a');
         }
-        for (Iterator<Phone> it= phones.iterator(); it.hasNext(); ) {
-            Phone phone = it.next();
+        for (Phone phone : phones) {
             phone.move_x(randomChoice());
             phone.move_y(randomChoice());
-            map[phone.getPosition_x()][phone.getPosition_y()] = (char)(phone.getPhoneID() + '0');
+            map[phone.getPosition_x()][phone.getPosition_y()] = (char) (phone.getPhoneID() + '0');
 
             int id = checkStation(phone);
-            if (id >= 0) System.out.println("phone: " + phone.getPhoneID() + " " +  phone.getNumber() +
-                    " has entered the " + id +  " base station." + " sysmbol: " +(char)(id + 'a'));
-            else         System.out.println("phone: " + phone.getPhoneID() + " " + phone.getNumber() + " is out of service.");
+            if (id >= 0) System.out.println("phone_" + phone.getPhoneID() + " " + phone.getNumber() +
+                    " has entered the " + id + " base station." + " Station Sysmbol in map: " + (char) (id + 'a'));
+            else System.out.println("phone_" + phone.getPhoneID() + " " + phone.getNumber() + " is out of service.");
 
         }
+
+        //随机拨号、挂断等
         System.out.println();
-        for (Iterator<Phone> it= phones.iterator(); it.hasNext(); ) {
-            Phone phone = it.next();
+        for (Phone phone : phones) {
             checkPhone(phone);
             System.out.println();
         }
@@ -91,77 +93,85 @@ public class ComMap implements RandomN{
         System.out.println();
     }
 
-    public int checkPhone(Phone phone){
+    //手机进行随机动作
+    public void checkPhone(Phone phone){
 
+        //生成随机操作对象cPhone，可能会向他拨号
         int cphone = randomNumber(0, getPhonenum());
         while (cphone == phone.getPhoneID()){
             cphone = randomNumber(0, getPhonenum());
         }
 
 //        System.out.println(cphone);
-
+        //正在通话中的话
         if (phone.getState() == 1) {
+            //phone通话中的对象oldcPhone
             Phone oldcPhone = phones.get(phone.getCphoneID());
+            //如果手机1不在服务区
             if (phone.getIn_stationID() == -1) {
 
-                System.out.println("Because " + "phone: " + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
-                        " is out of service. The call with phone " + oldcPhone.getPhoneID() + " has been terminated.");
+                System.out.println("Because " + "phone_" + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                        " is out of service. The call with phone_" + oldcPhone.getPhoneID() + " has been terminated.");
                 System.out.println(phone.getPhoneID() + "--" + "NO BASESTATION"
                         + "||" + (char) (oldcPhone.getIn_stationID() + 'a')+ "--" + oldcPhone.getPhoneID());
                 phone.setState(0);
                 oldcPhone.setState(0);
-                return 1;
             }
             else {
+                //在服务区但正在通话的对象不在服务区
                 if (oldcPhone.getIn_stationID() == -1){
-                    System.out.println("Because " + "phone: " + oldcPhone.getPhoneID() + "(" + phone.getNumber() + ")" +
-                            " is out of service. The call with phone " + phone.getPhoneID() + " has been terminated.");
+                    System.out.println("Because " + "phone_" + oldcPhone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                            " is out of service. The call with phone_" + phone.getPhoneID() + " has been terminated.");
                     System.out.println(oldcPhone.getPhoneID() + "--" + "NO BASESTATION"
                             + "||" + (char) (phone.getIn_stationID() + 'a')+ "--" + oldcPhone.getPhoneID());
                     phone.setState(0);
                     oldcPhone.setState(0);
-                    return 1;
                 }
                 else {
-                    if (randomChoice() == true) {
-                        System.out.println("Because " + "phone: " + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
-                                " hung up the phone. The call with phone " + oldcPhone.getPhoneID() + " has been terminated.");
+                    //都在服务区，但是本机可能随机挂断或者持续通话
+                    if (randomChoice()) {
+                        System.out.println("Because " + "phone_" + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                                " hung up the phone. The call with phone_" + oldcPhone.getPhoneID() + " has been terminated.");
                         System.out.println(phone.getPhoneID() + "||" + (char) (phone.getIn_stationID() + 'a')
                                 + "--" + (char) (oldcPhone.getIn_stationID() + 'a') + "--" + oldcPhone.getPhoneID());
                         phone.setState(0);
                         oldcPhone.setState(0);
-                        return 1;
                     } else {
-                        System.out.println("phone " + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
-                                " is still calling with phone " + oldcPhone.getPhoneID() + ".");
+                        System.out.println("phone_" + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                                " is still calling with phone_" + oldcPhone.getPhoneID() + "(" + oldcPhone.getNumber() + ")" +".");
                         System.out.println(phone.getPhoneID() + "--" + (char) (phone.getIn_stationID() + 'a')
                                 + "--" + (char) (oldcPhone.getIn_stationID() + 'a') + "--" + oldcPhone.getPhoneID());
-                        return 1;
                     }
                 }
             }
         }
+        //处于空闲状态的话
         else {
+            //如果在服务区
             if (phone.getIn_stationID() != -1) {
                 Phone cPhone = phones.get(cphone);
 //            System.out.println("!!!!!!!!");
 //            System.out.println(randomChoice());
-                if (randomChoice() == true) {
 
-                    System.out.println("phone: " + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
-                            "is trying to call phone: " + cphone);
+                if (randomChoice()) {
+                    //50%的概率随机尝试拨打电话
+                    System.out.println("phone_" + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                            "is trying to call phone_" + cphone);
+                    //拨打对象不在服务区
                     if (cPhone.getIn_stationID() == -1) {
-                        System.out.println("Failed, phone: " + cPhone.getPhoneID() + " is out of sevice!");
+                        System.out.println("Failed, phone_" + cPhone.getPhoneID() + " is out of sevice!");
                         System.out.println(phone.getPhoneID() + "--" + (char) (phone.getIn_stationID() + 'a')
                                 + "||" + "NO BASESTATION" + "--" + cPhone.getPhoneID());
-                        return 1;
+                        return;
                     }
+                    //拨打对象处于通话中
                     if (cPhone.getState() == 1) {
-                        System.out.println("Failed, phone: " + cPhone.getPhoneID() + " is on the line!");
+                        System.out.println("Failed, phone_" + cPhone.getPhoneID() + " is on the line!");
                         System.out.println(phone.getPhoneID() + "--" + (char) (phone.getIn_stationID() + 'a')
                                 + "--" + (char) (cPhone.getIn_stationID() + 'a') + "||" + cPhone.getPhoneID());
-                        return 1;
+                        return;
                     }
+                    //否则通话成功
                     System.out.println("Call successful!");
                     System.out.println(phone.getPhoneID() + "--" + (char) (phone.getIn_stationID() + 'a')
                             + "--" + (char) (cPhone.getIn_stationID() + 'a') + "--" + cPhone.getPhoneID());
@@ -169,25 +179,25 @@ public class ComMap implements RandomN{
                     phone.setCphoneID(cPhone.getPhoneID());
                     cPhone.setState(1);
                     cPhone.setCphoneID(phone.getPhoneID());
-                    return 1;
                 }
+                //50%的概率并不拨打电话
                 else{
-                    System.out.println("phone: " + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                    System.out.println("phone_" + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
                             "is not doing anything.");
                 }
             }
+            //如果本机没在服务区，失败
             else{
-                System.out.println("phone: " + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
+                System.out.println("phone_" + phone.getPhoneID() + "(" + phone.getNumber() + ")" +
                         " is out of service.The cell phone is currently unable to dial.");
                 System.out.println(phone.getPhoneID() + "||" + "NO BASESTATION");
 
             }
         }
 
-        return 1;
     }
 
-
+    //检查离手机最近的基站，返回id，失败返回-1
     public int checkStation(Phone phone) {
 
         int s;
@@ -195,17 +205,15 @@ public class ComMap implements RandomN{
         int x = phone.getPosition_x();
         int y = phone.getPosition_y();
 
-        for (Iterator<BaseStation> it = baseStations.iterator(); it.hasNext();){
-            BaseStation baseStation = it.next();
-            s = (x - baseStation.getPosition_x())*(x - baseStation.getPosition_x()) +
-                    (y - baseStation.getPosition_y())*(y - baseStation.getPosition_y());
-            if (s <= min)   min = s;
+        for (BaseStation baseStation : baseStations) {
+            s = (x - baseStation.getPosition_x()) * (x - baseStation.getPosition_x()) +
+                    (y - baseStation.getPosition_y()) * (y - baseStation.getPosition_y());
+            if (s <= min) min = s;
         }
-        for (Iterator<BaseStation> it = baseStations.iterator(); it.hasNext();){
-            BaseStation baseStation = it.next();
-            s = (x - baseStation.getPosition_x())*(x - baseStation.getPosition_x()) +
-                    (y - baseStation.getPosition_y())*(y - baseStation.getPosition_y());
-            if (s == min&&s <= getR()) {
+        for (BaseStation baseStation : baseStations) {
+            s = (x - baseStation.getPosition_x()) * (x - baseStation.getPosition_x()) +
+                    (y - baseStation.getPosition_y()) * (y - baseStation.getPosition_y());
+            if (s == min && s <= getR()) {
                 phone.setIn_stationID(baseStation.getStationID());
                 return phone.getIn_stationID();
             }
@@ -215,6 +223,7 @@ public class ComMap implements RandomN{
 
     }
 
+    //打印地图
     public void printMap(){
         int i, j;
         for (i = 0; i < width; i ++){
@@ -234,9 +243,7 @@ public class ComMap implements RandomN{
     @Override
     public boolean randomChoice() {
         double r = Math.random();
-
-        if (r < 0.5)    return true;
-        else            return false;
+        return r < 0.5;
     }
 
 }
