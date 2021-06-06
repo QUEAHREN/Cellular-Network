@@ -213,7 +213,7 @@ public class ComMap implements RandomN{
         for (BaseStation baseStation : baseStations) {
             s = (x - baseStation.getPosition_x()) * (x - baseStation.getPosition_x()) +
                     (y - baseStation.getPosition_y()) * (y - baseStation.getPosition_y());
-            if (s == min && s <= getR()) {
+            if (s == min && s <= getR()*getR()) {
                 phone.setIn_stationID(baseStation.getStationID());
                 return phone.getIn_stationID();
             }
